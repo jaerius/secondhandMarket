@@ -7,11 +7,7 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "noEmit": true,
     "moduleResolution": "node",
@@ -22,7 +18,10 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": [
     "next-env.d.ts",
@@ -31,8 +30,5 @@
     ".next/types/**/*.ts",
     "test/circom_test.js"
   ],
-  "exclude": [
-    "node_modules",
-    "test-helpers.ts"
-  ]
+  "exclude": ["node_modules", "test-helpers.ts"]
 }

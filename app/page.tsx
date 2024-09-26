@@ -1,9 +1,9 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import useProducts from "@/hooks/useProducts";
-import React from "react";
+'use client';
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import useProducts from '@/hooks/useProducts';
+import React from 'react';
 import {
   Card,
   CardHeader,
@@ -11,10 +11,10 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {useRecoilValue} from "recoil";
-import {accountState} from "@/atom/account";
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { useRecoilValue } from 'recoil';
+import { accountState } from '@/atom/account';
 
 export default function Home() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function Home() {
                           src={product.image}
                           width={300}
                           height={300}
-                          alt={""}
+                          alt={''}
                         />
                       </div>
                     </div>
@@ -52,7 +52,7 @@ export default function Home() {
                   <Badge className="text-lg" variant="outline">
                     {product.state}
                   </Badge>
-                  {product.state === "Sell" && product.owner !== account && (
+                  {product.state === 'Sell' && product.owner !== account && (
                     <Button
                       onClick={() => router.push(`/products/${product.id}`)}
                     >

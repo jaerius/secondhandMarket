@@ -17,6 +17,7 @@ import { web3auth } from '@/utils/web3-auth';
 import { groth16 } from 'snarkjs';
 import witnessCalculatorBuilder from '../../../greater_than_js/witness_calculator';
 import { ethers } from 'ethers';
+import { chainConfig } from '@/utils/web3-auth';
 
 export default function Home() {
   const params = useParams();

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { CHAIN_NAMESPACES, IProvider, UserInfo } from "@web3auth/base";
-import { Web3Auth } from "@web3auth/modal";
-import { XrplPrivateKeyProvider } from "@web3auth/xrpl-provider";
-import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
-import { useRecoilState } from "recoil";
-import { accountState } from "@/atom/account";
-import { balanceState } from "@/atom/balance";
-import { ellipsisAddress } from "@/utils/strings";
+import { CHAIN_NAMESPACES, IProvider, UserInfo } from '@web3auth/base';
+import { Web3Auth } from '@web3auth/modal';
+import { EthereumPrivateKeyProvider } from '@web3auth/ethereum-provider'; // 이더리움용 PrivateKeyProvider로 변경
+import { useEffect, useState } from 'react';
+import { Button } from './ui/button';
+import { useRecoilState } from 'recoil';
+import { accountState } from '@/atom/account';
+import { balanceState } from '@/atom/balance';
+import { ellipsisAddress } from '@/utils/strings';
 
 export const Wallet: React.FC = () => {
   const [provider, setProvider] = useState<IProvider | null>(null);
@@ -16,30 +16,39 @@ export const Wallet: React.FC = () => {
   const [account, setAccount] = useRecoilState(accountState);
   const [balance, setBalance] = useRecoilState(balanceState);
   const clientId =
-    "BGUM9pLACidLnpI8zYVxTONoaKHV59U8-5Cw9vjdLaIn9r6RU0TLCItXpLsDjVQPAcfcWKlWVm9CDU5mBlElX0M";
+    'BGUM9pLACidLnpI8zYVxTONoaKHV59U8-5Cw9vjdLaIn9r6RU0TLCItXpLsDjVQPAcfcWKlWVm9CDU5mBlElX0M';
 
+  // 이더리움 네트워크 관련 설정
   const chainConfig = {
-    chainNamespace: CHAIN_NAMESPACES.XRPL,
-    chainId: "0x2",
-    rpcTarget: "https://testnet-ripple-node.tor.us",
-    wsTarget: "wss://s.altnet.rippletest.net",
-    ticker: "XRP",
-    tickerName: "XRPL",
-    displayName: "xrpl testnet",
-    blockExplorerUrl: "https://testnet.xrpl.org",
-    clientId: "",
+    chainNamespace: CHAIN_NAMESPACES.EIP155, // EVM 기반 네트워크
+    chainId: '0xaa36a7', // Ethereum 메인넷 체인 ID (0x1 = 메인넷, 0x5 = Goerli 테스트넷)
+    rpcTarget:
+      'https://eth-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // Infura 또는 Alchemy 등의 RPC 제공자
+    wsTarget:
+      'hhttps://eth-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // 웹소켓 RPC (선택 사항)
+    ticker: 'ETH',
+    tickerName: 'Sepolia',
+    displayName: 'Ethereum Mainnet',
+    blockExplorerUrl: 'https://etherscan.io', // 이더리움 블록 익스플로러
+    clientId: '',
   };
 
-  const privateKeyProvider = new XrplPrivateKeyProvider({
+  // 이더리움 전용 PrivateKeyProvider
+  const privateKeyProvider = new EthereumPrivateKeyProvider({
     config: { chainConfig },
   });
+
   const web3auth = new Web3Auth({
     clientId,
     privateKeyProvider,
-    web3AuthNetwork: "sapphire_devnet",
+    web3AuthNetwork: 'testnet', // 이더리움 메인넷
   });
 
   useEffect(() => {
+    console.log(
+      'Initializing Web3Auth with the following chainConfig:',
+      chainConfig,
+    );
     const init = async () => {
       try {
         await web3auth.initModal();
@@ -75,8 +84,9 @@ export const Wallet: React.FC = () => {
   useEffect(() => {
     const loadAccount = async () => {
       const accounts: any = await provider?.request({
-        method: "xrpl_getAccounts",
+        method: 'eth_accounts', // 이더리움 네트워크에서 계정을 가져오는 메서드
       });
+      console.log(accounts);
 
       if (!accounts) {
         return;
@@ -84,31 +94,26 @@ export const Wallet: React.FC = () => {
       console.log(accounts[0]);
 
       try {
-        const accountInfo: any = await provider?.request({
-          method: "account_info",
-          params: [
-            {
-              account: accounts[0],
-              strict: true,
-              ledger_index: "current",
-              queue: true,
-            },
-          ],
+        const balance = await provider?.request({
+          method: 'eth_getBalance', // 이더리움 네트워크에서 잔액을 가져오는 메서드
+          params: [accounts[0], 'latest'],
         });
+
         const account = accounts[0];
         console.log(account);
         setAccount(account);
-        const balance = accountInfo?.account_data?.Balance;
+
         if (balance) {
-          const decimalBalance = (BigInt(balance) / BigInt(1000000)).toString();
+          const decimalBalance = (
+            BigInt(balance) / BigInt(10 ** 18)
+          ).toString(); // 이더리움 잔액은 wei 단위로 반환되므로 10^18로 나눔
           setBalance(decimalBalance);
         } else {
-          setBalance("0");
+          setBalance('0');
         }
-      }catch {
-        setBalance("0");
+      } catch {
+        setBalance('0');
       }
-
     };
     if (loggedIn) {
       loadAccount();
