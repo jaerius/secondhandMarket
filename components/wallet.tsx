@@ -9,6 +9,7 @@ import { useRecoilState } from 'recoil';
 import { accountState } from '@/atom/account';
 import { balanceState } from '@/atom/balance';
 import { ellipsisAddress } from '@/utils/strings';
+import { ethers } from 'ethers';
 
 export const Wallet: React.FC = () => {
   const [provider, setProvider] = useState<IProvider | null>(null);
@@ -101,17 +102,19 @@ export const Wallet: React.FC = () => {
 
         const account = accounts[0];
         console.log(account);
+        console.log(balance);
         setAccount(account);
 
         if (balance) {
-          const decimalBalance = (
-            BigInt(balance) / BigInt(10 ** 18)
-          ).toString(); // 이더리움 잔액은 wei 단위로 반환되므로 10^18로 나눔
-          setBalance(decimalBalance);
+          const formattedBalance = ethers.formatEther(
+            BigInt(balance.toString()),
+          ); // 잔액을 ETH 단위로 변환
+          setBalance(formattedBalance); // 변환된 잔액을 string 타입으로 설정
         } else {
           setBalance('0');
         }
-      } catch {
+      } catch (error) {
+        console.error(error);
         setBalance('0');
       }
     };
@@ -128,7 +131,7 @@ export const Wallet: React.FC = () => {
             logout();
           }}
         >
-          {ellipsisAddress(account)} ( {balance} XRP )
+          {ellipsisAddress(account)} ( {balance} {chainConfig.ticker} )
         </Button>
       ) : (
         <Button

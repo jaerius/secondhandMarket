@@ -255,8 +255,8 @@ export default function Home() {
           <h1>{product.description}</h1>
 
           <div className="space-y-5">
-            <h1>Price : {product.price} XRP</h1>
-            <h1>Available : {balance} XRP</h1>
+            <h1>Price : {product.price} </h1>
+            <h1>Available : {balance} </h1>
 
             {product?.state == 'Sell' && product?.owner !== account && (
               <div className="flex space-x-4">
