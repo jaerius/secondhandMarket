@@ -5,10 +5,10 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 interface IVerifier {
     function verifyProof(
-        uint256[2] memory a,
+        uint256[3] memory a,
         uint256[2][2] memory b,
-        uint256[2] memory c,
-        uint256[2] memory input
+        uint256[3] memory c,
+        uint256[3] memory input
     ) external view returns (bool);
 }
 
@@ -43,10 +43,10 @@ contract ZKGameTradingContract is ReentrancyGuard {
         address payable _seller,
         uint256 _sellerPrice,
         uint256 _buyerOffer,
-        uint256[2] memory a,
+        uint256[3] memory a,
         uint256[2][2] memory b,
-        uint256[2] memory c,
-        uint256[2] memory input
+        uint256[3] memory c,
+        uint256[3] memory input
     ) external payable nonReentrant returns (bytes32) {
         require(msg.value == _sellerPrice, "Staked amount must match seller's price");
         require(_buyerOffer <= _sellerPrice, "Buyer's offer must not exceed seller's price");

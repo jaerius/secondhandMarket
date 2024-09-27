@@ -17,8 +17,10 @@ import { web3auth } from '@/utils/web3-auth';
 import { groth16 } from 'snarkjs';
 // import witnessCalculatorBuilder from 'public/greater_than_js/witness_calculator';
 import { chainConfig } from '@/utils/web3-auth';
-import { ethers, Contract } from 'ethers';
+import { ethers, Contract, BrowserProvider, JsonRpcProvider } from 'ethers';
 import { getContract } from '@/lib/ethereum';
+import ProofSlider from '@/components/ui/proofSlider';
+import zkContract from '../../../artifacts/contracts/ZKGameTradingContract.sol/ZKGameTradingContract.json';
 
 export default function Home() {
   const params = useParams();
@@ -32,6 +34,8 @@ export default function Home() {
   const [showInputBox, setShowInputBox] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const abi = zkContract.abi;
+  const contractAddress = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
 
   useEffect(() => {
     const init = async () => {
@@ -46,28 +50,6 @@ export default function Home() {
     init();
   }, [product]);
 
-  // useEffect(() => {
-  //   const loadWitnessCalculator = async () => {
-  //     try {
-  //       await new Promise((resolve, reject) => {
-  //         const script = document.createElement('script');
-  //         script.src = '/greater_than_js/witness_calculator.js';
-  //         script.onload = resolve;
-  //         script.onerror = reject;
-  //         document.body.appendChild(script);
-  //       });
-  //       console.log('witness_calculator.js loaded successfully');
-  //       console.log(
-  //         'witnessCalculatorBuilder availability:',
-  //         typeof (window as any).witnessCalculatorBuilder,
-  //       );
-  //     } catch (error) {
-  //       console.error('Failed to load witness_calculator.js:', error);
-  //     }
-  //   };
-
-  //   loadWitnessCalculator();
-  // }, []);
   const onSendTransaction = useCallback(async () => {
     if (!product) {
       return;
@@ -137,79 +119,79 @@ export default function Home() {
     });
     //window.location.reload()
   };
-  const onEscrowSendTransaction = async () => {
-    try {
-      if (!account) {
-        alert('account loding..');
-        return;
-      }
-      const preimageData = crypto.randomBytes(32);
+  // const onEscrowSendTransaction = async () => {
+  //   try {
+  //     if (!account) {
+  //       alert('account loding..');
+  //       return;
+  //     }
+  //     const preimageData = crypto.randomBytes(32);
 
-      // Create a new PreimageSha256 fulfillment
-      const myFulfillment = new PreimageSha256();
-      myFulfillment.setPreimage(preimageData);
+  //     // Create a new PreimageSha256 fulfillment
+  //     const myFulfillment = new PreimageSha256();
+  //     myFulfillment.setPreimage(preimageData);
 
-      // Get the condition in hex format
-      const conditionHex = myFulfillment
-        .getConditionBinary()
-        .toString('hex')
-        .toUpperCase();
-      console.log('Condition in hex format: ', conditionHex);
+  //     // Get the condition in hex format
+  //     const conditionHex = myFulfillment
+  //       .getConditionBinary()
+  //       .toString('hex')
+  //       .toUpperCase();
+  //     console.log('Condition in hex format: ', conditionHex);
 
-      let finishAfter = new Date(new Date().getTime() / 1000);
-      finishAfter = new Date(finishAfter.getTime() * 1000 + 3);
-      console.log('This escrow will finish after!!: ', finishAfter);
+  //     let finishAfter = new Date(new Date().getTime() / 1000);
+  //     finishAfter = new Date(finishAfter.getTime() * 1000 + 3);
+  //     console.log('This escrow will finish after!!: ', finishAfter);
 
-      console.log(product);
-      if (!product) {
-        return;
-      }
+  //     console.log(product);
+  //     if (!product) {
+  //       return;
+  //     }
 
-      const tx = {
-        TransactionType: 'EscrowCreate',
-        Account: account,
-        Amount: xrpToDrops(product.price),
-        Destination: product.owner,
-        Condition: conditionHex, // SHA-256 해시 조건
-        FinishAfter: isoTimeToRippleTime(finishAfter.toISOString()), // Refer for more details: https://xrpl.org/basic-data-types.html#specifying-time
-      };
-      console.log('tx', tx);
-      const txSign: any = await provider?.request({
-        method: 'xrpl_submitTransaction',
-        params: {
-          transaction: tx,
-        },
-      });
+  //     const tx = {
+  //       TransactionType: 'EscrowCreate',
+  //       Account: account,
+  //       Amount: xrpToDrops(product.price),
+  //       Destination: product.owner,
+  //       Condition: conditionHex, // SHA-256 해시 조건
+  //       FinishAfter: isoTimeToRippleTime(finishAfter.toISOString()), // Refer for more details: https://xrpl.org/basic-data-types.html#specifying-time
+  //     };
+  //     console.log('tx', tx);
+  //     const txSign: any = await provider?.request({
+  //       method: 'xrpl_submitTransaction',
+  //       params: {
+  //         transaction: tx,
+  //       },
+  //     });
 
-      console.log('txRes', txSign);
-      console.log(
-        'txRes.result.tx_json.OfferSequence :',
-        txSign.result.tx_json.Sequence,
-      );
-      console.log('condition : ', conditionHex);
-      console.log(
-        'fullfillment : ',
-        myFulfillment.serializeBinary().toString('hex').toUpperCase(),
-      );
-      const txHash = txSign.result.tx_json.hash; // Extract transaction hash from the response
+  //     console.log('txRes', txSign);
+  //     console.log(
+  //       'txRes.result.tx_json.OfferSequence :',
+  //       txSign.result.tx_json.Sequence,
+  //     );
+  //     console.log('condition : ', conditionHex);
+  //     console.log(
+  //       'fullfillment : ',
+  //       myFulfillment.serializeBinary().toString('hex').toUpperCase(),
+  //     );
+  //     const txHash = txSign.result.tx_json.hash; // Extract transaction hash from the response
 
-      await pb.collection('market').update(product.id, {
-        txhash: txHash,
-        fulfillment: myFulfillment
-          .serializeBinary()
-          .toString('hex')
-          .toUpperCase(),
-        condition: conditionHex,
-        sequence: txSign.result.tx_json.Sequence,
-        state: 'Reserved',
-        buyer: account,
-      });
-      alert('Escrow Success');
-      window.location.reload();
-    } catch (error) {
-      console.log('error', error);
-    }
-  };
+  //     await pb.collection('market').update(product.id, {
+  //       txhash: txHash,
+  //       fulfillment: myFulfillment
+  //         .serializeBinary()
+  //         .toString('hex')
+  //         .toUpperCase(),
+  //       condition: conditionHex,
+  //       sequence: txSign.result.tx_json.Sequence,
+  //       state: 'Reserved',
+  //       buyer: account,
+  //     });
+  //     alert('Escrow Success');
+  //     window.location.reload();
+  //   } catch (error) {
+  //     console.log('error', error);
+  //   }
+  // };
 
   const loadScript = (src: string): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -296,6 +278,26 @@ export default function Home() {
     setInputValue(e.target.value);
   };
 
+  const convertProofForContract = (
+    proof: any,
+    price: any,
+    offerAmount: any,
+  ) => {
+    const a = proof.proof.pi_a;
+    const b = [
+      [proof.proof.pi_b[0][1], proof.proof.pi_b[0][0]],
+      [proof.proof.pi_b[1][1], proof.proof.pi_b[1][0]],
+    ];
+    const c = proof.proof.pi_c;
+    const input = proof.publicSignals;
+
+    // Ensure offerAmount and sellerPrice are in the correct positions
+    input[1] = offerAmount.toString();
+    input[2] = price.toString();
+
+    return [a, b, c, input];
+  };
+
   const handleMakeOffer = async () => {
     if (!inputValue) {
       alert('Please enter a valid offer.');
@@ -304,20 +306,34 @@ export default function Home() {
 
     setIsSubmitting(true); // 제출 중 상태로 변경
     try {
-      // 스마트 컨트랙트 인스턴스를 가져오는 함수 (미리 정의되었다고 가정)
-      const contract: Contract = await getContract();
-      const offerAmount = parseFloat(inputValue); // 입력한 금액을 숫자로 변환
-
       if (!product) {
         return;
       }
+      // 스마트 컨트랙트 인스턴스를 가져오는 함수 (미리 정의되었다고 가정)
+      //const contract: Contract = await getContract();
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner(); // Await the promise to get the signer object
+      const contract = await new ethers.Contract(contractAddress, abi, signer);
+      // Convert string values to wei
+      const offerAmountWei = ethers.parseEther(inputValue);
+      const sellerPriceWei = ethers.parseEther(product.price.toString());
 
-      // 트랜잭션 보내기
+      const convertedProof = convertProofForContract(
+        proof,
+        sellerPriceWei,
+        offerAmountWei,
+      );
+
+      // Ensure the input values in the proof match the actual offer and price
+      convertedProof[3][1] = offerAmountWei.toString();
+      convertedProof[3][2] = sellerPriceWei.toString();
+
       const tx = await contract.makeOffer(
         product.owner,
-        ethers.parseEther(product.price.toString()), // sellerPrice
-        ethers.parseEther(offerAmount.toString()), // buyerOffer
-        [0n, 0n, 0n, 0n], // zkProof (임시로 설정)
+        sellerPriceWei, // sellerPrice
+        offerAmountWei, // buyerOffer
+        ...convertedProof, // zkProof
+        { value: offerAmountWei }, // Send ETH with the transaction
       );
 
       console.log('Transaction sent:', tx.hash);
@@ -355,19 +371,23 @@ export default function Home() {
             )}
 
             {showInputBox && (
-                <div className="flex space-x-4">
-                  <input
-                    type="number"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    className="border p-2"
-                    placeholder="Enter your offer"
-                  />
-                  <Button onClick={handleMakeOffer} disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Submit Offer'}
-                  </Button>
-                </div>
-              ) && <Button onClick={generateProof}>Generate proof</Button>}
+              <Button onClick={generateProof}>Generate proof</Button>
+            )}
+            {proof && <ProofSlider proof={proof} />}
+            {proof && (
+              <div className="flex space-x-4 text-black">
+                <input
+                  type="number"
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  className="border p-2"
+                  placeholder="Enter your offer"
+                />
+                <Button onClick={handleMakeOffer} disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit Offer'}
+                </Button>
+              </div>
+            )}
             {product?.state === 'Sell' && product?.owner === account && (
               <div className="flex space-x-4">
                 <Button onClick={onSendTransaction}>Delete</Button>
