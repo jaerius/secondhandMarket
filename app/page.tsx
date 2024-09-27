@@ -56,7 +56,7 @@ export default function Home() {
                     <Button
                       onClick={() => router.push(`/products/${product.id}`)}
                     >
-                      ${product.price}XRP Buy
+                      ${product.price} Buy Now
                     </Button>
                   )}
                 </CardFooter>

@@ -1,5 +1,5 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -7,25 +7,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import React from "react";
-import pb from "@/api/pocketbase";
-import { useRecoilValue } from "recoil";
-import { accountState } from "@/atom/account";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import React from 'react';
+import pb from '@/api/pocketbase';
+import { useRecoilValue } from 'recoil';
+import { accountState } from '@/atom/account';
 const formSchema = z.object({
-  name: z.string().default("").optional(),
+  name: z.string().default('').optional(),
   price: z.coerce.number().optional(),
   image: z.string().optional(),
   location: z.string().optional(),
   state: z.string().optional(),
-  description: z.string().default("").optional(),
+  description: z.string().default('').optional(),
   owner: z.string().optional(),
 });
 
@@ -35,20 +35,20 @@ export const SellProduct: React.FC = () => {
   const account = useRecoilValue(accountState);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const title = "Sell Product";
-  const action = "Create";
+  const title = 'Sell Product';
+  const action = 'Create';
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       owner: account,
-      name: "iPhone15",
-      description: "Brand new iPhone 15 with 1TB storage and 5G connectivity",
+      name: 'iPhone15',
+      description: 'Brand new iPhone 15 with 1TB storage and 5G connectivity',
       price: 200,
-      location: "Dreamplus",
-      state: "Sell",
+      location: 'Dreamplus',
+      state: 'Sell',
       image:
-        "https://lh5.googleusercontent.com/p/AF1QipP4dsFswNUlKJayzgH8xVVzDlp03p038KKjIJ8w=w203-h135-k-no",
+        'https://lh5.googleusercontent.com/p/AF1QipP4dsFswNUlKJayzgH8xVVzDlp03p038KKjIJ8w=w203-h135-k-no',
     },
   });
 
@@ -60,8 +60,8 @@ export const SellProduct: React.FC = () => {
         owner: account,
       };
 
-      await pb.collection("ripplemarket").create(formData);
-      router.replace("/");
+      await pb.collection('market').create(formData);
+      router.replace('/');
       router.refresh();
     } catch (error: any) {
     } finally {

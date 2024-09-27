@@ -1,19 +1,19 @@
 // app/layout.tsx
-import "./globals.css";
-import type { Metadata } from "next";
-import { Inter as FontSans } from "next/font/google";
+import './globals.css';
+import type { Metadata } from 'next';
+import { Inter as FontSans } from 'next/font/google';
 
 const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
+  subsets: ['latin'],
+  variable: '--font-sans',
 });
-import Provider from "@/context";
-import { cn } from "@/lib/utils";
-import { Header } from "@/components/header";
+import Provider from '@/context';
+import { cn } from '@/lib/utils';
+import { Header } from '@/components/header';
 
 export const metadata: Metadata = {
-  title: "ripplemarket",
-  description: "ripplemarket",
+  title: 'fleemarket',
+  description: 'fleemarket',
 };
 
 export default function RootLayout({
@@ -25,8 +25,8 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          'min-h-screen bg-background font-sans antialiased',
+          fontSans.variable,
         )}
       >
         <Provider>

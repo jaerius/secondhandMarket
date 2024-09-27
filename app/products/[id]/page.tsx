@@ -15,9 +15,10 @@ import { PreimageSha256 } from 'five-bells-condition';
 import { accountState } from '@/atom/account';
 import { web3auth } from '@/utils/web3-auth';
 import { groth16 } from 'snarkjs';
-import witnessCalculatorBuilder from '../../../greater_than_js/witness_calculator';
-import { ethers } from 'ethers';
+// import witnessCalculatorBuilder from 'public/greater_than_js/witness_calculator';
 import { chainConfig } from '@/utils/web3-auth';
+import { ethers, Contract } from 'ethers';
+import { getContract } from '@/lib/ethereum';
 
 export default function Home() {
   const params = useParams();
@@ -26,9 +27,11 @@ export default function Home() {
   const account = useRecoilValue(accountState);
   const { data: product } = useProduct(id);
   const [provider, setProvider] = useState<IProvider | null>(null);
-  const [ethBalance, setEthBalance] = useState<string>('0');
   const [proof, setProof] = useState<any>(null);
   const [isGeneratingProof, setIsGeneratingProof] = useState(false);
+  const [showInputBox, setShowInputBox] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -42,18 +45,6 @@ export default function Home() {
 
     init();
   }, [product]);
-
-  useEffect(() => {
-    const fetchEthBalance = async () => {
-      if (provider && account) {
-        const ethProvider = new ethers.JsonRpcProvider(provider as any);
-        const balance = await ethProvider.getBalance(account as string);
-        setEthBalance(ethers.formatEther(balance));
-      }
-    };
-
-    fetchEthBalance();
-  }, [provider, account]);
 
   const onSendTransaction = useCallback(async () => {
     if (!product) {
@@ -76,7 +67,7 @@ export default function Home() {
       },
     });
     console.log(txSign);
-    await pb.collection('ripplemarket').update(product.id, {
+    await pb.collection('market').update(product.id, {
       state: 'Completed',
       buyer: account,
     });
@@ -88,7 +79,7 @@ export default function Home() {
     if (!product) {
       return;
     }
-    await pb.collection('ripplemarket').update(product.id, {
+    await pb.collection('market').update(product.id, {
       state: 'Approve',
     });
     window.location.reload();
@@ -119,7 +110,7 @@ export default function Home() {
       },
     });
     console.log('txSign : ', txSign);
-    await pb.collection('ripplemarket').update(product.id, {
+    await pb.collection('market').update(product.id, {
       state: 'Complete',
     });
     //window.location.reload()
@@ -180,7 +171,7 @@ export default function Home() {
       );
       const txHash = txSign.result.tx_json.hash; // Extract transaction hash from the response
 
-      await pb.collection('ripplemarket').update(product.id, {
+      await pb.collection('market').update(product.id, {
         txhash: txHash,
         fulfillment: myFulfillment
           .serializeBinary()
@@ -198,29 +189,52 @@ export default function Home() {
     }
   };
 
+  const loadScript = (src: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = () => resolve();
+      script.onerror = (err) => {
+        console.error(`Error loading script ${src}:`, err);
+        reject(err);
+      };
+      document.body.appendChild(script);
+    });
+  };
+
   const generateProof = useCallback(async () => {
-    if (!product || !ethBalance) return;
+    if (!product || !balance || !account) return;
 
     setIsGeneratingProof(true);
     try {
-      // 이더리움 잔액과 제품 가격을 bigint로 변환
-      const balance = ethers.parseEther(ethBalance);
-      const price = ethers.parseEther(product.price.toString());
+      if (!product || !balance || !account) return;
 
-      // 입력 데이터 구성
-      const input = { balance: balance.toString(), price: price.toString() };
+      setIsGeneratingProof(true);
+      const priceWei = ethers.parseEther(product.price.toString());
+      const balanceWei = ethers.parseEther(balance.toString());
 
-      // ZK 증명을 위한 witness 계산기 생성
-      const witnessCalculatorCode = await fetch(
-        '../../../greater_than_js/greater_than.wasm',
-      ).then((res) => res.arrayBuffer());
-      const witnessCalculator = await witnessCalculatorBuilder(
-        witnessCalculatorCode,
+      // 입력 데이터 구성 (Wei 단위의 BigInt 값 사용)
+      const input = {
+        balance: BigInt(balanceWei.toString()).toString(),
+        price: BigInt(priceWei.toString()).toString(),
+      };
+      // witness_calculator.js 파일 로드
+      await loadScript('/greater_than_js/witness_calculator.js');
+
+      console.log('Loading WASM file...');
+      const wasmResponse = await fetch('/greater_than_js/greater_than.wasm');
+      const wasmBinary = await wasmResponse.arrayBuffer();
+      console.log('WASM file loaded');
+
+      console.log('Creating witnessCalculator...');
+      const witnessCalculator = await (window as any).witnessCalculatorBuilder(
+        wasmBinary,
       );
+      console.log('witnessCalculator created:', witnessCalculator);
 
-      // 증인 생성
-      const witness = await witnessCalculator.calculateWitness(input, 0);
-
+      console.log('Calculating witness...');
+      const witness = await witnessCalculator.calculateWTNSBin(input, 0);
+      console.log('Witness calculated:', witness);
       // zkey 파일 로드
       const zkeyFile = await fetch('/circuits/greater_than.zkey').then((res) =>
         res.arrayBuffer(),
@@ -229,7 +243,7 @@ export default function Home() {
       // 증명 생성
       const { proof, publicSignals } = await groth16.prove(
         new Uint8Array(zkeyFile),
-        witness,
+        new Uint8Array(witness),
       );
 
       console.log('Proof generated:', proof);
@@ -238,10 +252,57 @@ export default function Home() {
       setProof({ proof, publicSignals });
     } catch (error) {
       console.error('Error generating proof:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
     } finally {
       setIsGeneratingProof(false);
     }
-  }, [product, ethBalance]);
+  }, [product, balance, account]);
+
+  const handleChallengeClick = () => {
+    setShowInputBox(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleMakeOffer = async () => {
+    if (!inputValue) {
+      alert('Please enter a valid offer.');
+      return;
+    }
+
+    setIsSubmitting(true); // 제출 중 상태로 변경
+    try {
+      // 스마트 컨트랙트 인스턴스를 가져오는 함수 (미리 정의되었다고 가정)
+      const contract: Contract = await getContract();
+      const offerAmount = parseFloat(inputValue); // 입력한 금액을 숫자로 변환
+
+      if (!product) {
+        return;
+      }
+
+      // 트랜잭션 보내기
+      const tx = await contract.makeOffer(
+        product.owner,
+        ethers.parseEther(product.price.toString()), // sellerPrice
+        ethers.parseEther(offerAmount.toString()), // buyerOffer
+        [0n, 0n, 0n, 0n], // zkProof (임시로 설정)
+      );
+
+      console.log('Transaction sent:', tx.hash);
+      await tx.wait(); // 트랜잭션 완료 대기
+      alert('Offer submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting offer:', error);
+      alert('Failed to submit offer.');
+    } finally {
+      setIsSubmitting(false); // 제출 완료 후 상태 변경
+    }
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center p-10 bg-green-500">
@@ -261,10 +322,25 @@ export default function Home() {
             {product?.state == 'Sell' && product?.owner !== account && (
               <div className="flex space-x-4">
                 <Button onClick={onSendTransaction}>Buy</Button>
-                <Button onClick={onEscrowSendTransaction}>Escrow Buy</Button>
+
+                <Button onClick={handleChallengeClick}>challenge</Button>
               </div>
             )}
 
+            {showInputBox && (
+                <div className="flex space-x-4">
+                  <input
+                    type="number"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    className="border p-2"
+                    placeholder="Enter your offer"
+                  />
+                  <Button onClick={handleMakeOffer} disabled={isSubmitting}>
+                    {isSubmitting ? 'Submitting...' : 'Submit Offer'}
+                  </Button>
+                </div>
+              ) && <Button onClick={generateProof}>Generate proof</Button>}
             {product?.state === 'Sell' && product?.owner === account && (
               <div className="flex space-x-4">
                 <Button onClick={onSendTransaction}>Delete</Button>

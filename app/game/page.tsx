@@ -7,6 +7,13 @@ import io from 'socket.io-client';
 
 const socket = io('http://localhost:3001');
 
+interface GameProps {
+  owner: string;
+  price: string;
+  offer: number;
+  proof: string;
+}
+
 type GameState =
   | 'idle'
   | 'offerMade'
@@ -19,7 +26,7 @@ interface Clicks {
   seller: number;
 }
 
-const Game: React.FC = () => {
+const Game: React.FC<GameProps> = ({ owner, price, offer, proof }) => {
   const [tradeId, setTradeId] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState>('idle');
   const [clicks, setClicks] = useState<Clicks>({ buyer: 0, seller: 0 });
@@ -41,12 +48,17 @@ const Game: React.FC = () => {
     };
   }, []);
 
-  const handleMakeOffer = async () => {
+  const handleMakeOffer = async (
+    owner: string,
+    price: string,
+    offer: number,
+    proof: string,
+  ) => {
     if (!contract) return;
     try {
       const tx = await contract.makeOffer(
-        'SELLER_ADDRESS',
-        ethers.parseEther('1'), // sellerPrice
+        owner,
+        price, // sellerPrice
         ethers.parseEther('0.5'), // buyerOffer
         [0n, 0n, 0n, 0n], // zkProof
       );
@@ -125,9 +137,6 @@ const Game: React.FC = () => {
 
   return (
     <div>
-      {gameState === 'idle' && (
-        <button onClick={handleMakeOffer}>Make Offer</button>
-      )}
       {gameState === 'offerMade' && (
         <button onClick={handleAcceptOffer}>Accept Offer</button>
       )}

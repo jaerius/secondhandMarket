@@ -1,6 +1,6 @@
 1,1,2,main.out
-2,2,2,main.a
-3,3,2,main.b
+2,2,2,main.balance
+3,3,2,main.price
 4,-1,1,main.lt.out
 5,-1,1,main.lt.in[0]
 6,-1,1,main.lt.in[1]

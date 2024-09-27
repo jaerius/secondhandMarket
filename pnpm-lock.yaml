@@ -165,6 +165,9 @@ importers:
       '@types/react-dom':
         specifier: ^18
         version: 18.3.0
+      '@types/snarkjs':
+        specifier: ^0.7.8
+        version: 0.7.8
       '@types/socket.io':
         specifier: ^3.0.2
         version: 3.0.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -2652,6 +2655,9 @@ packages:
 
   '@types/sinonjs__fake-timers@8.1.5':
     resolution: {integrity: sha512-mQkU2jY8jJEF7YHjHvsQO8+3ughTL1mcnn96igfhONmR+fUPSKIkefQYpSe8bsly2Ep7oQbn/6VG5/9/0qcArQ==}
+
+  '@types/snarkjs@0.7.8':
+    resolution: {integrity: sha512-x37Jsv1vx6I6RMJdfvYEmDUOLYgzYMecwlk13gniDOcN20xLVe9hy9DlQxWeCPirqpDY/jwugQSqCi2RxehU3g==}
 
   '@types/socket.io-client@3.0.0':
     resolution: {integrity: sha512-s+IPvFoEIjKA3RdJz/Z2dGR4gLgysKi8owcnrVwNjgvc01Lk68LJDDsG2GRqegFITcxmvCMYM7bhMpwEMlHmDg==}
@@ -11337,6 +11343,8 @@ snapshots:
       '@types/sinonjs__fake-timers': 8.1.5
 
   '@types/sinonjs__fake-timers@8.1.5': {}
+
+  '@types/snarkjs@0.7.8': {}
 
   '@types/socket.io-client@3.0.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)':
     dependencies:

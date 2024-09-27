@@ -1,15 +1,15 @@
-import pb from "@/api/pocketbase";
-import { IProductProps } from "@/types/product";
-import { useQuery } from "@tanstack/react-query";
+import pb from '@/api/pocketbase';
+import { IProductProps } from '@/types/product';
+import { useQuery } from '@tanstack/react-query';
 
 export default function useProducts() {
   return useQuery<IProductProps[]>({
-    queryKey: ["products"],
+    queryKey: ['products'],
     queryFn: async (): Promise<IProductProps[]> => {
       const { items } = await pb
-        .collection("ripplemarket")
+        .collection('market')
         .getList<IProductProps>(1, 100, {
-          sort: "-created",
+          sort: '-created',
         });
 
       return items;

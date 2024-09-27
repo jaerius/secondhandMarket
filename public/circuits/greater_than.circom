@@ -1,11 +1,11 @@
 template GreaterThan() {
-    signal input a;
-    signal input b;
+    signal input balance;
+    signal input price;
     signal output out;
 
     component lt = LessThan(252);
-    lt.in[0] <== b;
-    lt.in[1] <== a;
+    lt.in[0] <== price;
+    lt.in[1] <== balance;
     out <== lt.out;
 }
 
