@@ -46,6 +46,28 @@ export default function Home() {
     init();
   }, [product]);
 
+  // useEffect(() => {
+  //   const loadWitnessCalculator = async () => {
+  //     try {
+  //       await new Promise((resolve, reject) => {
+  //         const script = document.createElement('script');
+  //         script.src = '/greater_than_js/witness_calculator.js';
+  //         script.onload = resolve;
+  //         script.onerror = reject;
+  //         document.body.appendChild(script);
+  //       });
+  //       console.log('witness_calculator.js loaded successfully');
+  //       console.log(
+  //         'witnessCalculatorBuilder availability:',
+  //         typeof (window as any).witnessCalculatorBuilder,
+  //       );
+  //     } catch (error) {
+  //       console.error('Failed to load witness_calculator.js:', error);
+  //     }
+  //   };
+
+  //   loadWitnessCalculator();
+  // }, []);
   const onSendTransaction = useCallback(async () => {
     if (!product) {
       return;
@@ -227,6 +249,11 @@ export default function Home() {
       console.log('WASM file loaded');
 
       console.log('Creating witnessCalculator...');
+      console.log(
+        'Checking window.witnessCalculatorBuilder:',
+        typeof (window as any).witnessCalculatorBuilder,
+      );
+
       const witnessCalculator = await (window as any).witnessCalculatorBuilder(
         wasmBinary,
       );
@@ -236,8 +263,8 @@ export default function Home() {
       const witness = await witnessCalculator.calculateWTNSBin(input, 0);
       console.log('Witness calculated:', witness);
       // zkey 파일 로드
-      const zkeyFile = await fetch('/circuits/greater_than.zkey').then((res) =>
-        res.arrayBuffer(),
+      const zkeyFile = await fetch('/circuits/greater_than_0001.zkey').then(
+        (res) => res.arrayBuffer(),
       );
 
       // 증명 생성
