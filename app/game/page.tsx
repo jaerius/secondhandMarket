@@ -59,7 +59,7 @@ const GamePage = () => {
   };
 
   return (
-    <div>
+    <div className='bg-green-500 font-mono'>
       <h1>실시간 탭 게임</h1>
       {gameStartedYet ? (
         <p>게임 대기 중...</p>
@@ -68,11 +68,16 @@ const GamePage = () => {
           <button onClick={handleTap}>탭!</button>
           <p>내 탭 횟수: {tapCount}</p>
           <p>상대방 탭 횟수: {opponentTapCount / 2}</p>
+          <p>{((tapCount/(opponentTapCount/2 + tapCount))*100).toFixed(2)} %</p>
+          <p>{/*(가격 * 2 )* ((tapCount/(opponentTapCount/2 + tapCount))*100).toFixed(2)}*/}</p>
+          <p>{(2000 * ((tapCount/(opponentTapCount/2 + tapCount)))).toFixed(2)}</p>
         </div>
       ) : (
         <div>
           <p>내 탭 횟수: {tapCount}</p>
           <p>상대방 탭 횟수: {opponentTapCount / 2}</p>
+          <p>{((tapCount/(opponentTapCount/2 + tapCount))*100).toFixed(2)} %</p>
+          <p>{(2000 * ((tapCount/(opponentTapCount/2 + tapCount)))).toFixed(2)}</p>
         </div>
       )}
     </div>
