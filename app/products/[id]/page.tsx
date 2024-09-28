@@ -21,6 +21,8 @@ import { ethers, Contract, BrowserProvider, JsonRpcProvider } from 'ethers';
 import { getContract } from '@/lib/ethereum';
 import ProofSlider from '@/components/ui/proofSlider';
 import zkContract from '../../../artifacts/contracts/ZKGameTradingContract.sol/ZKGameTradingContract.json';
+import { getWeb3AuthSigner } from '@/utils/web3_auth_sign';
+import { get } from 'http';
 
 export default function Home() {
   const params = useParams();
@@ -311,9 +313,12 @@ export default function Home() {
       }
       // 스마트 컨트랙트 인스턴스를 가져오는 함수 (미리 정의되었다고 가정)
       //const contract: Contract = await getContract();
-      const provider = new BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner(); // Await the promise to get the signer object
-      const contract = await new ethers.Contract(contractAddress, abi, signer);
+      if (!provider) {
+        return;
+      }
+      const signer = await getWeb3AuthSigner(); // Await the promise to get the signer object
+      const contract = new ethers.Contract(contractAddress, abi, signer);
+
       // Convert string values to wei
       const offerAmountWei = ethers.parseEther(inputValue);
       const sellerPriceWei = ethers.parseEther(product.price.toString());
@@ -346,6 +351,37 @@ export default function Home() {
       setIsSubmitting(false); // 제출 완료 후 상태 변경
     }
   };
+
+  async function listenForSellerOffers(sellerAddress: string) {
+    console.log(`Starting to listen for offers for seller: ${sellerAddress}`);
+
+    // Get the OfferMade event from the contract ABI
+    const provider = web3auth.provider;
+    // if(!provider) {
+    //   return
+    // }
+    const signer = await getWeb3AuthSigner();
+    const contract = new ethers.Contract(contractAddress, abi, signer);
+
+    const offerMadeEvent = contract.filters.OfferMade();
+
+    // Listen for the OfferMade event
+    contract.on(
+      offerMadeEvent,
+      (tradeId, buyerAddr, sellerAddr, sellerPrice, buyerOffer, event) => {
+        if (sellerAddr.toLowerCase() === sellerAddress.toLowerCase()) {
+          console.log('New offer received:', {
+            tradeId,
+            buyer: buyerAddr,
+            sellerPrice: ethers.formatEther(sellerPrice),
+            buyerOffer: ethers.formatEther(buyerOffer),
+          });
+
+          // Here you can update your UI, send a notification, etc.
+        }
+      },
+    );
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center p-10 bg-green-500">

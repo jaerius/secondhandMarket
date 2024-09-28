@@ -31,7 +31,7 @@ describe('ZKGameTradingContract', function () {
     );
     zkGameTradingContract = (await ZKGameTradingContractFactory.deploy(
       verifierAddress,
-    )) as ZKGameTradingContract;
+    )) as any;
     await zkGameTradingContract.waitForDeployment();
     const zkGameTradingContractAddress =
       await zkGameTradingContract.getAddress();
@@ -53,13 +53,13 @@ describe('ZKGameTradingContract', function () {
       await seller.getAddress(),
       sellerPrice,
       buyerOffer,
-      [1, 2], // mock proof data
+      [1, 2, 1], // mock proof data
       [
         [3, 4],
         [5, 6],
       ],
-      [7, 8],
-      [9, 10],
+      [7, 8, 1],
+      [9, 10, 1],
       { value: sellerPrice },
     );
     const receipt = await tx.wait();
@@ -69,8 +69,24 @@ describe('ZKGameTradingContract', function () {
     console.log('Offer made event emitted');
   });
 
+  // it('Should listen for OfferMade event for a specific seller', function(done) {
+  //   this.timeout(10000); // Increase timeout to 10 seconds
+
+  //   const sellerAddress = seller.address;
+
+  //   zkGameTradingContract.on('OfferMade', (tradeId, buyerAddr, sellerAddr, sellerPrice, buyerOffer, event) => {
+  //     if (sellerAddr === sellerAddress) {
+  //       console.log('OfferMade event received for seller:', { tradeId, buyerAddr, sellerAddr, sellerPrice, buyerOffer });
+  //       expect(sellerAddr).to.equal(sellerAddress);
+  //       // Remove the listener to prevent memory leaks
+  //       zkGameTradingContract.removeAllListeners('OfferMade');
+  //       done();
+  //     }
+  //   });
+
   it('Should accept an offer', async function () {
     // First make an offer
+
     const sellerPrice = ethers.parseEther('1');
     const buyerOffer = ethers.parseEther('0.8');
 
@@ -78,13 +94,13 @@ describe('ZKGameTradingContract', function () {
       await seller.getAddress(),
       sellerPrice,
       buyerOffer,
-      [1, 2], // mock proof data
+      [1, 2, 1], // mock proof data
       [
         [3, 4],
         [5, 6],
       ],
-      [7, 8],
-      [9, 10],
+      [7, 8, 1],
+      [9, 10, 1],
       { value: sellerPrice },
     );
     const receipt = await tx.wait();
@@ -113,13 +129,13 @@ describe('ZKGameTradingContract', function () {
       await seller.getAddress(),
       sellerPrice,
       buyerOffer,
-      [1, 2], // mock proof data
+      [1, 2, 1], // mock proof data
       [
         [3, 4],
         [5, 6],
       ],
-      [7, 8],
-      [9, 10],
+      [7, 8, 1],
+      [9, 10, 1],
       { value: sellerPrice },
     );
     const receipt = await tx.wait();

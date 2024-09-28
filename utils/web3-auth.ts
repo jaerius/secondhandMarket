@@ -10,12 +10,12 @@ export const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155, // EVM 기반 네트워크
   chainId: '0xaa36a7', // Ethereum 메인넷 체인 ID (0x1 = 메인넷, 0x5 = Goerli 테스트넷)
   rpcTarget:
-    'https://eth-mainnet.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // Infura 또는 다른 RPC 제공자 사용 가능
-  wsTarget: 'wss://mainnet.infura.io/ws/v3/YOUR_INFURA_PROJECT_ID', // 웹소켓 RPC (선택 사항)
+    'https://eth-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // Infura 또는 Alchemy 등의 RPC 제공자
+  wsTarget:
+    'hhttps://eth-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // 웹소켓 RPC (선택 사항)
   ticker: 'ETH',
-  logo: 'https://web3auth.io/images/web3auth-logo.svg',
-  tickerName: 'Ethereum',
-  displayName: 'Ethereum Testnet',
+  tickerName: 'Sepolia',
+  displayName: 'Ethereum Mainnet',
   blockExplorerUrl: 'https://etherscan.io', // 이더리움 블록 익스플로러
   clientId: '',
 };
