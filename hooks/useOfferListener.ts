@@ -7,6 +7,7 @@ import {
   latestOfferState,
   showModalState,
   Offer,
+  processedOfferCountState,
 } from '../atom/offer';
 
 const POLLING_INTERVAL = 30000; // 30 seconds
@@ -20,6 +21,7 @@ const useOfferListener = (
   const setLatestOffer = useSetRecoilState(latestOfferState);
   const setShowModal = useSetRecoilState(showModalState);
   const currentOfferCount = useRecoilValue(offerCountState);
+  const processedOfferCount = useRecoilValue(processedOfferCountState);
 
   const lastCheckedBlockRef = useRef<number>(0);
 
@@ -46,7 +48,8 @@ const useOfferListener = (
       console.log(`Event args:`, events[0]);
 
       if (events.length > 0) {
-        setOfferCount((prevCount: number) => prevCount + events.length);
+        const newOfferCount = currentOfferCount + events.length;
+        setOfferCount(newOfferCount);
 
         // Process only the latest event
         const latestEvent = events[events.length - 1];
@@ -62,7 +65,10 @@ const useOfferListener = (
           };
           setLatestOffer(newOffer);
           console.log('Setting modal to show', showModalState);
-          setShowModal(true);
+          if (newOfferCount > processedOfferCount) {
+            console.log('Setting modal to show', true);
+            setShowModal(true);
+          }
           console.log('Modal should be showing', showModalState);
         }
       }

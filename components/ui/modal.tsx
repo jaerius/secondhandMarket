@@ -6,16 +6,18 @@ import {
   latestOfferState,
   showModalState,
   offerCountState,
+  processedOfferCountState,
 } from '../../atom/offer';
 import { acceptOffer } from '@/lib/ethereum';
-import useOfferListener from '@/hooks/useOfferListener';
 
 const OfferModal: React.FC = () => {
   const [showModal, setShowModal] = useRecoilState(showModalState);
   const latestOffer = useRecoilValue(latestOfferState);
   const offerCount = useRecoilValue(offerCountState);
   const setOfferCount = useSetRecoilState(offerCountState);
-  const [processedOfferCount, setProcessedOfferCount] = useState(0);
+  const [processedOfferCount, setProcessedOfferCount] = useRecoilState(
+    processedOfferCountState,
+  );
 
   console.log('OfferModal', {
     latestOffer,
@@ -27,16 +29,28 @@ const OfferModal: React.FC = () => {
   const handleDeny = useCallback(() => {
     setShowModal(false);
     setProcessedOfferCount(offerCount);
+    console.log(
+      'processOfferCount',
+      processedOfferCount,
+      'offerCount',
+      offerCount,
+    );
     console.log('Denying offer, closing modal');
-  }, [setShowModal, offerCount]);
+  }, [setShowModal, offerCount, setProcessedOfferCount]);
 
   const handleAccept = useCallback(() => {
     if (!latestOffer) return;
     acceptOffer(latestOffer.tradeId);
     setShowModal(false);
     setProcessedOfferCount(offerCount);
+    console.log(
+      'processOfferCount',
+      processedOfferCount,
+      'offerCount',
+      offerCount,
+    );
     console.log('Accepting offer, closing modal');
-  }, [latestOffer, setShowModal, offerCount]);
+  }, [latestOffer, setShowModal, offerCount, setProcessedOfferCount]);
 
   useEffect(() => {
     if (offerCount > processedOfferCount && latestOffer && !showModal) {
