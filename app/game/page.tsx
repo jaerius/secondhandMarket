@@ -6,7 +6,8 @@ import { useRecoilValue } from 'recoil';
 import { ChartConfig } from '@/components/ui/chart';
 import { acceptedTradeInfoState } from '../../atom/trade';
 import { accountState } from '@/atom/account';
-import { Button } from "@nextui-org/react";
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
+
 
 import {
   BarChart,
@@ -16,7 +17,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { endGame } from '@/lib/ethereum';
+import { endGame, startGame } from '@/lib/ethereum';
 
 interface TradeInfo {
   tradeId: string;
@@ -29,11 +30,14 @@ interface TradeInfo {
 const GamePage = () => {
   const socket = useSocket();
   const [tapCount, setTapCount] = useState(0);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sellerTapCount, setSellerTapCount] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameStartedYet, setGameStartedYet] = useState(true);
+  const [modalIsOpen, setModalIsOpen] = useState(false); // 모달 상태 추가
   const [tradeInfo, setTradeInfo] = useState<TradeInfo | null>(null);
   const account = useRecoilValue(accountState);
+  const [gameOver, setGameOver] = useState(false); // 게임 종료 상태 추가
 
   const searchParams = useSearchParams();
   const tradeId = searchParams.get('tradeId');
@@ -103,7 +107,9 @@ const GamePage = () => {
 
     const handleGameEnd = () => {
       setGameStarted(false);
-      endGame(roomId, sellerTapCount / 2, tapCount);
+      endGame(currentTradeId, sellerTapCount / 2, tapCount);
+      onOpen(); // 게임 끝나면 모달 열기
+      setGameOver(true);
     };
 
     socket.on('connect', handleConnect);
@@ -127,6 +133,8 @@ const GamePage = () => {
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
       setGameStarted(true); // 카운트다운이 끝나면 게임 시작
+      setCountdownActive(false);
+      startGame(currentTradeId);
     }
   }, [countdown, countdownActive]);
 
@@ -134,6 +142,7 @@ const GamePage = () => {
     setCountdown(3); // 카운트다운 초기화
     setCountdownActive(true); // 카운트다운 활성화
   };
+
 
   const handleTap = () => {
     if (!gameStarted || !socket) return;
@@ -143,43 +152,63 @@ const GamePage = () => {
       return newCount;
     });
   };
-
+  const currentTradeId : string = tradeInfo?.tradeId!
+  console.log("currentTradeId", currentTradeId)
+  
   const handleJoinRoom = () => {
-    if (socket && roomId) {
-      socket.emit('joinRoom', { roomId, role });
+    if (socket && currentTradeId) {
+      socket.emit('joinRoom', { currentTradeId, role });
       // 카운트다운 및 게임 시작 로직
       socket.on('gameStart', () => {
         startCountdown();
+        setGameStartedYet(false);
+        setTapCount(0);
+        setSellerTapCount(0);
       });
     }
   };
 
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
   return (
     <div className='min-h-screen bg-green-500 font-mono flex flex-col items-center justify-center'>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        className="flex items-center justify-center"
+      >
+        <ModalContent className="bg-white font-mono mx-auto">
+          <ModalHeader className="text-center">Game Result</ModalHeader>
+          <ModalBody>
+            <div>
+              <p>My tab count: {tapCount}</p>
+              <p>Opponent tab count: {sellerTapCount / 2}</p>
+              <p>Final price: {((Number(tradeInfo?.offerPrice) + Number(tradeInfo?.sellerPrice)) * (tapCount / (sellerTapCount / 2 + tapCount))).toFixed(2)}</p>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <h1 className='text-2xl mb-4'>
-        {countdownActive ? countdown : '가격 흥정 시작!'}
+        {gameStartedYet ? 'Ready to play game...' : 
+         countdownActive ? countdown : 
+         gameOver ? 'Game Over' : 
+         "Let's Start!!"}
       </h1>
       {gameStartedYet ? (
         <div className='flex flex-col items-center'>
-          <input
-            type="text"
-            placeholder="방 ID 입력"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            className='mb-2 p-2'
-          />
-          <select value={role} onChange={(e) => setRole(e.target.value as 'buyer' | 'seller')} className='mb-2 p-2'>
-            <option value="buyer">Buyer</option>
-            <option value="seller">Seller</option>
-          </select>
-          <Button onClick={handleJoinRoom} className='mb-2'>방에 참여하기</Button>
-          <p>게임 대기 중...</p>
         </div>
       ) : gameStarted ? (
         <div className='flex flex-col items-center'>
-          <Button onClick={handleTap} className='mb-2'>탭!</Button>
-          <p>내 탭 횟수: {tapCount}</p>
-          <p>상대방 탭 횟수: {sellerTapCount / 2}</p>
+          <Button onClick={handleTap} className='mb-2'>Tab!!</Button>
+          <p>my tab count: {tapCount}</p>
+          <p>opponent tab count: {sellerTapCount / 2}</p>
           <p>{((tapCount / (sellerTapCount / 2 + tapCount)) * 100).toFixed(2)} %</p>
           <p>{(2000 * (tapCount / (sellerTapCount / 2 + tapCount))).toFixed(2)}</p>
           <ResponsiveContainer width="100%" height={36}>
@@ -210,8 +239,8 @@ const GamePage = () => {
         </div>
       ) : (
         <div className='flex flex-col items-center'>
-          <p>내 탭 횟수: {tapCount}</p>
-          <p>상대방 탭 횟수: {sellerTapCount / 2}</p>
+          <p>my tab count: {tapCount}</p>
+          <p>opponent tab count: {sellerTapCount / 2}</p>
           <p>{((tapCount / (sellerTapCount / 2 + tapCount)) * 100).toFixed(2)} %</p>
           <p>{(2000 * (tapCount / (sellerTapCount / 2 + tapCount))).toFixed(2)}</p>
           <ResponsiveContainer width="100%" height={36}>
@@ -241,6 +270,8 @@ const GamePage = () => {
           </ResponsiveContainer>
         </div>
       )}
+
+      
     </div>
   );
 };
