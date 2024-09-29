@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from 'recharts';
 
 const GamePage = () => {
@@ -21,20 +21,20 @@ const GamePage = () => {
   const chartConfig: ChartConfig = {
     up: {
       label: 'Seller',
-      color: '#00A29A'
+      color: '#00A29A',
     },
     down: {
       label: 'Buyer',
-      color: '#C73535'
-    }
+      color: '#C73535',
+    },
   };
 
   const chartData = [
     {
       name: 'price',
-      seller: opponentTapCount/2,
-      buyer: tapCount
-    }
+      seller: opponentTapCount / 2,
+      buyer: tapCount,
+    },
   ];
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const GamePage = () => {
   };
 
   return (
-    <div className='min-h-screen bg-green-500 font-mono'>
+    <div className="min-h-screen bg-green-500 font-mono">
       <h1>실시간 탭 게임</h1>
       {gameStartedYet ? (
         <p>게임 대기 중...</p>
@@ -95,40 +95,50 @@ const GamePage = () => {
           <button onClick={handleTap}>탭!</button>
           <p>내 탭 횟수: {tapCount}</p>
           <p>상대방 탭 횟수: {opponentTapCount / 2}</p>
-          <p>{((tapCount / (opponentTapCount / 2 + tapCount)) * 100).toFixed(2)} %</p>
-          <p>{(2000 * (tapCount / (opponentTapCount / 2 + tapCount))).toFixed(2)}</p>
+          <p>
+            {((tapCount / (opponentTapCount / 2 + tapCount)) * 100).toFixed(2)}{' '}
+            %
+          </p>
+          <p>
+            {(2000 * (tapCount / (opponentTapCount / 2 + tapCount))).toFixed(2)}
+          </p>
         </div>
       ) : (
         <div>
           <p>내 탭 횟수: {tapCount}</p>
           <p>상대방 탭 횟수: {opponentTapCount / 2}</p>
-          <p>{((tapCount / (opponentTapCount / 2 + tapCount)) * 100).toFixed(2)} %</p>
-          <p>{(2000 * (tapCount / (opponentTapCount / 2 + tapCount))).toFixed(2)}</p>
+          <p>
+            {((tapCount / (opponentTapCount / 2 + tapCount)) * 100).toFixed(2)}{' '}
+            %
+          </p>
+          <p>
+            {(2000 * (tapCount / (opponentTapCount / 2 + tapCount))).toFixed(2)}
+          </p>
           <ResponsiveContainer width="100%" height={36}>
-              <BarChart
-                data={chartData}
-                layout="vertical"
-                margin={{ top: 20, bottom: 0 }}
-              >
-                <XAxis type="number" hide />
-                <YAxis type="category" dataKey="name" hide />
-                <Tooltip cursor={false} />
-                <Bar
-                  dataKey="seller"
-                  stackId="a"
-                  fill={chartConfig.up.color}
-                  barSize={20}
-                  radius={[10, 0, 0, 10]}
-                />
-                <Bar
-                  dataKey="buyer"
-                  stackId="a"
-                  fill={chartConfig.down.color}
-                  barSize={20}
-                  radius={[0, 10, 10, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <BarChart
+              data={chartData}
+              layout="vertical"
+              margin={{ top: 20, bottom: 0 }}
+            >
+              <XAxis type="number" hide />
+              <YAxis type="category" dataKey="name" hide />
+              <Tooltip cursor={false} />
+              <Bar
+                dataKey="seller"
+                stackId="a"
+                fill={chartConfig.up.color}
+                barSize={20}
+                radius={[10, 0, 0, 10]}
+              />
+              <Bar
+                dataKey="buyer"
+                stackId="a"
+                fill={chartConfig.down.color}
+                barSize={20}
+                radius={[0, 10, 10, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>
