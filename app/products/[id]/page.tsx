@@ -37,7 +37,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const abi = zkContract.abi;
-  const contractAddress = '0xD410658f238f11CA47657cAa00F2e85F3d9Ff00d';
+  const contractAddress = '0x33d371747C6f5509467803a9fC41f209b80510b8';
 
   useEffect(() => {
     const init = async () => {
@@ -138,8 +138,10 @@ export default function Home() {
   };
 
   const generateProof = useCallback(async () => {
+    console.log('generateProof');
+    console.log('product', product, 'balance', balance, 'account', account);
     if (!product || !balance || !account) return;
-
+    console.log('generateProof2');
     setIsGeneratingProof(true);
     try {
       if (!product || !balance || !account) return;

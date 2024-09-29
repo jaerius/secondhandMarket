@@ -13,7 +13,7 @@ function getEthersProvider(web3authProvider: IProvider): BrowserProvider {
   return new BrowserProvider(web3authProvider as any);
 }
 
-// 사용 예시
+// 사용 예시x
 export async function getWeb3AuthSigner() {
   if (!web3auth.provider) {
     throw new Error('Web3Auth is not initialized');

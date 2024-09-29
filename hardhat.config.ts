@@ -22,6 +22,30 @@ const config: HardhatUserConfig = {
         'https://eth-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // Sepolia RPC URL
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [], // Private key of your wallet
     },
+    scrollTestnet: {
+      url:
+        process.env.SCROLL_TESTNET_URL ||
+        'https://scroll-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8',
+      accounts: process.env.SCROLL_PRIVATE_KEY
+        ? [process.env.SCROLL_PRIVATE_KEY]
+        : [],
+    },
+  },
+  etherscan: {
+    apiKey: {
+      scrollSepolia: 'CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8',
+    },
+    customChains: [
+      {
+        network: 'scrollSepolia',
+        chainId: 534351,
+        urls: {
+          apiURL:
+            'https://scroll-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8',
+          browserURL: 'https://sepolia.scrollscan.com/',
+        },
+      },
+    ],
   },
 };
 export default config;

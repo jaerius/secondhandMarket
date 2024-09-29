@@ -2,7 +2,7 @@ import { ethers, BrowserProvider, Contract } from 'ethers';
 import contractJSON from '../artifacts/contracts/ZKGameTradingContract.sol/ZKGameTradingContract.json';
 import { getWeb3AuthSigner } from '../utils/web3_auth_sign';
 
-const CONTRACT_ADDRESS: string = '0xD410658f238f11CA47657cAa00F2e85F3d9Ff00d';
+const CONTRACT_ADDRESS: string = '0x33d371747C6f5509467803a9fC41f209b80510b8';
 const contractABI = contractJSON.abi;
 
 export async function getContract(): Promise<Contract> {

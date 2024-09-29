@@ -112,4 +112,48 @@ contract ZKGameTradingContract is ReentrancyGuard {
         trade.isCompleted = true;
         emit TradeCompleted(_tradeId, trade.finalPrice);
     }
+
+    function getTrade(bytes32 _tradeId) external view returns (
+        address buyer,
+        address seller,
+        uint256 sellerPrice,
+        uint256 buyerOffer,
+        uint256 stakedAmount,
+        uint256 gameStartTime,
+        uint256 finalPrice,
+        bool isAccepted,
+        bool isCompleted
+    ) {
+        Trade storage trade = trades[_tradeId];
+        return (
+            trade.buyer,
+            trade.seller,
+            trade.sellerPrice,
+            trade.buyerOffer,
+            trade.stakedAmount,
+            trade.gameStartTime,
+            trade.finalPrice,
+            trade.isAccepted,
+            trade.isCompleted
+        );
+    }
+
+    function getFinalPrice(bytes32 _tradeId) external view returns (uint256) {
+        return trades[_tradeId].finalPrice;
+    }
+
+    function getTradeStatus(bytes32 _tradeId) external view returns (bool isAccepted, bool isCompleted) {
+        Trade storage trade = trades[_tradeId];
+        return (trade.isAccepted, trade.isCompleted);
+    }
+
+    function getVerifierAddress() external view returns (address) {
+        return address(verifier);
+    }
+
+    function isOfferAccepted(bytes32 _tradeId) external view returns (bool) {
+        return trades[_tradeId].isAccepted;
+    }
+
+
 }
