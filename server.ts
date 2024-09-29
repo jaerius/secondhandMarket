@@ -122,7 +122,7 @@ function findPlayerRoom(playerId: string): string | null {
 }
 
 function startGameTimer(roomName: string, io: Server) {
-  const GAME_TIME = 10000; // 게임 시간 (10초)
+  const GAME_TIME = 13000; // 게임 시간 (10초) + 대기시간 3초
 
   setTimeout(() => {
     // 게임 종료 이벤트를 방에 있는 플레이어들에게 보냄
