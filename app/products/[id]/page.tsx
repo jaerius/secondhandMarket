@@ -37,13 +37,15 @@ export default function Home() {
   const [inputValue, setInputValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const abi = zkContract.abi;
-  const contractAddress = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
+  const contractAddress = '0xD410658f238f11CA47657cAa00F2e85F3d9Ff00d';
 
   useEffect(() => {
     const init = async () => {
       try {
         await web3auth.initModal();
         setProvider(web3auth.provider);
+        console.log('provider', provider);
+        console.log('getWeb3AuthSigner', getWeb3AuthSigner());
       } catch (error) {
         console.error(error);
       }
@@ -121,79 +123,6 @@ export default function Home() {
     });
     //window.location.reload()
   };
-  // const onEscrowSendTransaction = async () => {
-  //   try {
-  //     if (!account) {
-  //       alert('account loding..');
-  //       return;
-  //     }
-  //     const preimageData = crypto.randomBytes(32);
-
-  //     // Create a new PreimageSha256 fulfillment
-  //     const myFulfillment = new PreimageSha256();
-  //     myFulfillment.setPreimage(preimageData);
-
-  //     // Get the condition in hex format
-  //     const conditionHex = myFulfillment
-  //       .getConditionBinary()
-  //       .toString('hex')
-  //       .toUpperCase();
-  //     console.log('Condition in hex format: ', conditionHex);
-
-  //     let finishAfter = new Date(new Date().getTime() / 1000);
-  //     finishAfter = new Date(finishAfter.getTime() * 1000 + 3);
-  //     console.log('This escrow will finish after!!: ', finishAfter);
-
-  //     console.log(product);
-  //     if (!product) {
-  //       return;
-  //     }
-
-  //     const tx = {
-  //       TransactionType: 'EscrowCreate',
-  //       Account: account,
-  //       Amount: xrpToDrops(product.price),
-  //       Destination: product.owner,
-  //       Condition: conditionHex, // SHA-256 해시 조건
-  //       FinishAfter: isoTimeToRippleTime(finishAfter.toISOString()), // Refer for more details: https://xrpl.org/basic-data-types.html#specifying-time
-  //     };
-  //     console.log('tx', tx);
-  //     const txSign: any = await provider?.request({
-  //       method: 'xrpl_submitTransaction',
-  //       params: {
-  //         transaction: tx,
-  //       },
-  //     });
-
-  //     console.log('txRes', txSign);
-  //     console.log(
-  //       'txRes.result.tx_json.OfferSequence :',
-  //       txSign.result.tx_json.Sequence,
-  //     );
-  //     console.log('condition : ', conditionHex);
-  //     console.log(
-  //       'fullfillment : ',
-  //       myFulfillment.serializeBinary().toString('hex').toUpperCase(),
-  //     );
-  //     const txHash = txSign.result.tx_json.hash; // Extract transaction hash from the response
-
-  //     await pb.collection('market').update(product.id, {
-  //       txhash: txHash,
-  //       fulfillment: myFulfillment
-  //         .serializeBinary()
-  //         .toString('hex')
-  //         .toUpperCase(),
-  //       condition: conditionHex,
-  //       sequence: txSign.result.tx_json.Sequence,
-  //       state: 'Reserved',
-  //       buyer: account,
-  //     });
-  //     alert('Escrow Success');
-  //     window.location.reload();
-  //   } catch (error) {
-  //     console.log('error', error);
-  //   }
-  // };
 
   const loadScript = (src: string): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -261,6 +190,7 @@ export default function Home() {
       console.log('Public signals:', publicSignals);
 
       setProof({ proof, publicSignals });
+      console.log('Proof set:', proof);
     } catch (error) {
       console.error('Error generating proof:', error);
       if (error instanceof Error) {
@@ -305,15 +235,18 @@ export default function Home() {
       alert('Please enter a valid offer.');
       return;
     }
+    console.log('here');
 
     setIsSubmitting(true); // 제출 중 상태로 변경
     try {
       if (!product) {
+        console.error('Product not found');
         return;
       }
       // 스마트 컨트랙트 인스턴스를 가져오는 함수 (미리 정의되었다고 가정)
       //const contract: Contract = await getContract();
       if (!provider) {
+        console.error('Provider not found');
         return;
       }
       const signer = await getWeb3AuthSigner(); // Await the promise to get the signer object
@@ -332,13 +265,13 @@ export default function Home() {
       // Ensure the input values in the proof match the actual offer and price
       convertedProof[3][1] = offerAmountWei.toString();
       convertedProof[3][2] = sellerPriceWei.toString();
-
+      console.log('right before makeOffer');
       const tx = await contract.makeOffer(
         product.owner,
         sellerPriceWei, // sellerPrice
         offerAmountWei, // buyerOffer
         ...convertedProof, // zkProof
-        { value: offerAmountWei }, // Send ETH with the transaction
+        { value: sellerPriceWei }, // Send ETH with the transaction
       );
 
       console.log('Transaction sent:', tx.hash);
@@ -351,37 +284,6 @@ export default function Home() {
       setIsSubmitting(false); // 제출 완료 후 상태 변경
     }
   };
-
-  async function listenForSellerOffers(sellerAddress: string) {
-    console.log(`Starting to listen for offers for seller: ${sellerAddress}`);
-
-    // Get the OfferMade event from the contract ABI
-    const provider = web3auth.provider;
-    // if(!provider) {
-    //   return
-    // }
-    const signer = await getWeb3AuthSigner();
-    const contract = new ethers.Contract(contractAddress, abi, signer);
-
-    const offerMadeEvent = contract.filters.OfferMade();
-
-    // Listen for the OfferMade event
-    contract.on(
-      offerMadeEvent,
-      (tradeId, buyerAddr, sellerAddr, sellerPrice, buyerOffer, event) => {
-        if (sellerAddr.toLowerCase() === sellerAddress.toLowerCase()) {
-          console.log('New offer received:', {
-            tradeId,
-            buyer: buyerAddr,
-            sellerPrice: ethers.formatEther(sellerPrice),
-            buyerOffer: ethers.formatEther(buyerOffer),
-          });
-
-          // Here you can update your UI, send a notification, etc.
-        }
-      },
-    );
-  }
 
   return (
     <main className="flex min-h-screen flex-col items-center p-10 bg-green-500">

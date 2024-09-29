@@ -8,7 +8,6 @@ import {
   showModalState,
   Offer,
 } from '../atom/offer';
-import OfferModal from '@/components/ui/modal';
 
 const POLLING_INTERVAL = 30000; // 30 seconds
 
@@ -64,7 +63,6 @@ const useOfferListener = (
           setLatestOffer(newOffer);
           console.log('Setting modal to show', showModalState);
           setShowModal(true);
-          //OfferModal({ onAccept: () => {} });
           console.log('Modal should be showing', showModalState);
         }
       }

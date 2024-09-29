@@ -9,7 +9,7 @@ const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev }); // Next.js 앱 생성
 const handle = nextApp.getRequestHandler(); // Next.js의 기본 요청 핸들러
 
-const PORT = process.env.PORT || 3000;
+const PORT = /*process.env.PORT || */ 3001;
 
 // 플레이어와 게임 방 관리를 위한 데이터 구조
 interface PlayerData {

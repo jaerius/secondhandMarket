@@ -15,12 +15,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useRecoilValue } from 'recoil';
 import { accountState } from '@/atom/account';
+import { getWeb3AuthSigner } from '@/utils/web3_auth_sign';
 
 export default function Home() {
   const router = useRouter();
 
   const { data: products } = useProducts();
   const account = useRecoilValue(accountState);
+
+  console.log('getWeb3AuthSigner', getWeb3AuthSigner());
 
   return (
     <main className="flex min-h-screen flex-col items-center py-10 bg-green-500">
