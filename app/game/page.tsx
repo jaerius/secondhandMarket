@@ -173,10 +173,13 @@ const GamePage = () => {
   };
 
   return (
-    <div className='min-h-screen bg-green-500 font-mono flex flex-col items-center justify-center'>
+    <div className='min-h-screen bg-green-500 font-mono flex flex-col items-center justify-center relative'>
+      {gameOver && (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
       <Modal
         isOpen={isOpen}
         onClose={onClose}
+        closeButton={false}
         className="flex items-center justify-center"
       >
         <ModalContent className="bg-white font-mono mx-auto">
@@ -195,6 +198,9 @@ const GamePage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+    </div>
+  )}
+      
       <h1 className='text-2xl mb-4'>
         {gameStartedYet ? 'Ready to play game...' : 
          countdownActive ? countdown : 

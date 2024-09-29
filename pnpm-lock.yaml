@@ -74,6 +74,9 @@ importers:
       crypto:
         specifier: ^1.0.1
         version: 1.0.1
+      dialog:
+        specifier: link:@/components/ui/dialog
+        version: link:@/components/ui/dialog
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -137,6 +140,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@20.16.2)(typescript@5.5.4)))
+      ui:
+        specifier: link:@/components/ui
+        version: link:@/components/ui
       viem:
         specifier: ^2.19.6
         version: 2.21.0(bufferutil@4.0.8)(typescript@5.5.4)(utf-8-validate@5.0.10)(zod@3.23.8)
