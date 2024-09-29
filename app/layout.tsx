@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
 import OfferModal from '@/components/ui/modal';
 import OfferListenerWrapper from '@/components/offerListenrWrapper';
+import { WagmiStateManager } from '@/components/wagmiStateManager';
 
 const fontSans = FontSans({
   subsets: ['latin'],
@@ -12,7 +13,11 @@ const fontSans = FontSans({
 import Provider from '@/context';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/header';
+import { headers } from 'next/headers';
 import TradeAcceptedModal from '@/components/ui/tradeAcceptedModal';
+import { cookieToInitialState } from 'wagmi';
+import { config } from '@/utils/wagmi';
+import Web3ModalProvider from '@/components/wagmiModal';
 
 export const metadata: Metadata = {
   title: 'fleemarket',
@@ -24,6 +29,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialState = cookieToInitialState(config, headers().get('cookie'));
   return (
     <html lang="en">
       <body
@@ -37,7 +43,10 @@ export default function RootLayout({
           <OfferListenerWrapper />
           <OfferModal />
           <TradeAcceptedModal />
-          {children}
+          <WagmiStateManager />
+          <Web3ModalProvider initialState={initialState}>
+            {children}
+          </Web3ModalProvider>
         </Provider>
       </body>
     </html>

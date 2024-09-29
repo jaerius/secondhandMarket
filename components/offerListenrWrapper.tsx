@@ -6,7 +6,7 @@ import useOfferListener from '@/hooks/useOfferListener';
 import zkContract from '../artifacts/contracts/ZKGameTradingContract.sol/ZKGameTradingContract.json';
 import useTradeAcceptedListener from '@/hooks/useTradeListener';
 
-const contractAddress = '0xD410658f238f11CA47657cAa00F2e85F3d9Ff00d';
+const contractAddress = '0x33d371747C6f5509467803a9fC41f209b80510b8';
 const abi = zkContract.abi;
 
 export default function OfferListenerWrapper() {

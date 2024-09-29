@@ -23,8 +23,6 @@ export default function Home() {
   const { data: products } = useProducts();
   const account = useRecoilValue(accountState);
 
-  console.log('getWeb3AuthSigner', getWeb3AuthSigner());
-
   return (
     <main className="flex min-h-screen flex-col items-center py-10 bg-green-500">
       <div className="flex flex-wrap gap-10 w-3/5">

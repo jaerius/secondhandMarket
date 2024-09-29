@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
-import { Wallet } from './wallet';
+// import { Wallet } from './wallet';
 import Link from 'next/link';
 import { useState } from 'react';
 import { accountState } from '@/atom/account';
@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
         <Link href={'/'}>
           <h1 className="font-mono text-md font-extrabold">fleemarket</h1>
         </Link>
-        <Wallet />
+        <w3m-button />
       </div>
 
       <div className="z-10 w-full px-10 flex items-center justify-between font-mono text-sm">

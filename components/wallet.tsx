@@ -10,12 +10,23 @@ import { accountState } from '@/atom/account';
 import { balanceState } from '@/atom/balance';
 import { ellipsisAddress } from '@/utils/strings';
 import { ethers } from 'ethers';
+import { useAccount, useBalance, useWriteContract } from 'wagmi';
+import { scrollSepolia } from 'viem/chains';
+import { WagmiProvider } from 'wagmi';
 
 export const Wallet: React.FC = () => {
   const [provider, setProvider] = useState<IProvider | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [account, setAccount] = useRecoilState(accountState);
   const [balance, setBalance] = useRecoilState(balanceState);
+
+  const { address, isConnected } = useAccount();
+  const { data: newBalance } = useBalance({
+    chainId: scrollSepolia.id,
+    token: '0x',
+    address: address,
+  });
+
   const clientId =
     'BGUM9pLACidLnpI8zYVxTONoaKHV59U8-5Cw9vjdLaIn9r6RU0TLCItXpLsDjVQPAcfcWKlWVm9CDU5mBlElX0M';
 
@@ -24,9 +35,9 @@ export const Wallet: React.FC = () => {
     chainNamespace: CHAIN_NAMESPACES.EIP155, // EVM 기반 네트워크
     chainId: '0xaa36a7', // Ethereum 메인넷 체인 ID (0x1 = 메인넷, 0x5 = Goerli 테스트넷)
     rpcTarget:
-      'https://eth-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // Infura 또는 Alchemy 등의 RPC 제공자
+      'https://scroll-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // Infura 또는 Alchemy 등의 RPC 제공자
     wsTarget:
-      'hhttps://eth-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // 웹소켓 RPC (선택 사항)
+      'wss://scroll-sepolia.g.alchemy.com/v2/CAg7OLEoHDdLQXA_P8tWRCQ_SND4RYt8', // 웹소켓 RPC (선택 사항)
     ticker: 'ETH',
     tickerName: 'Sepolia',
     displayName: 'Ethereum Mainnet',
@@ -84,30 +95,32 @@ export const Wallet: React.FC = () => {
 
   useEffect(() => {
     const loadAccount = async () => {
-      const accounts: any = await provider?.request({
-        method: 'eth_accounts', // 이더리움 네트워크에서 계정을 가져오는 메서드
-      });
-      console.log(accounts);
+      const accounts: any = address;
+      // await provider?.request({
+      //   method: 'eth_accounts', // 이더리움 네트워크에서 계정을 가져오는 메서드
+      // });
+      // console.log(accounts);
 
       if (!accounts) {
         return;
       }
-      console.log(accounts[0]);
+      console.log(accounts);
 
       try {
-        const balance = await provider?.request({
-          method: 'eth_getBalance', // 이더리움 네트워크에서 잔액을 가져오는 메서드
-          params: [accounts[0], 'latest'],
-        });
+        // setBalance(newBalance);
+        // const balance = await provider?.request({
+        //   method: 'eth_getBalance', // 이더리움 네트워크에서 잔액을 가져오는 메서드
+        //   params: [accounts[0], 'latest'],
+        // });
 
-        const account = accounts[0];
-        console.log(account);
-        console.log(balance);
-        setAccount(account);
+        // const account = accounts[0];
+        // console.log(account);
+        // console.log(balance);
+        // setAccount(account);
 
-        if (balance) {
+        if (newBalance) {
           const formattedBalance = ethers.formatEther(
-            BigInt(balance.toString()),
+            BigInt(newBalance.toString()),
           ); // 잔액을 ETH 단위로 변환
           setBalance(formattedBalance); // 변환된 잔액을 string 타입으로 설정
         } else {
@@ -121,11 +134,11 @@ export const Wallet: React.FC = () => {
     if (loggedIn) {
       loadAccount();
     }
-  }, [loggedIn]);
+  }, [loggedIn, setBalance]);
 
   return (
     <>
-      {loggedIn && account ? (
+      {/* {loggedIn && account ? (
         <Button
           onClick={() => {
             logout();
@@ -141,7 +154,8 @@ export const Wallet: React.FC = () => {
         >
           Connect Wallet
         </Button>
-      )}
+      )} */}
+      <w3m-button />
     </>
   );
 };
