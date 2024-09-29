@@ -12,6 +12,7 @@ const fontSans = FontSans({
 import Provider from '@/context';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/header';
+import TradeAcceptedModal from '@/components/ui/tradeAcceptedModal';
 
 export const metadata: Metadata = {
   title: 'fleemarket',
@@ -35,6 +36,7 @@ export default function RootLayout({
           <Header />
           <OfferListenerWrapper />
           <OfferModal />
+          <TradeAcceptedModal />
           {children}
         </Provider>
       </body>

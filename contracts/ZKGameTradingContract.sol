@@ -77,7 +77,7 @@ contract ZKGameTradingContract is ReentrancyGuard {
         Trade storage trade = trades[_tradeId];
         require(msg.sender == trade.seller, "Only seller can accept the offer");
         require(!trade.isAccepted, "Trade already accepted");
-
+        
         trade.isAccepted = true;
         emit TradeAccepted(_tradeId);
     }

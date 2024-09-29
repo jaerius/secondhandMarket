@@ -8,13 +8,20 @@ import {
   offerCountState,
   processedOfferCountState,
 } from '../../atom/offer';
+import { accountState } from '@/atom/account';
 import { acceptOffer } from '@/lib/ethereum';
+import { useRouter } from 'next/navigation';
+import { acceptedTradeInfoState } from '../../atom/trade';
 
 const OfferModal: React.FC = () => {
   const [showModal, setShowModal] = useRecoilState(showModalState);
   const latestOffer = useRecoilValue(latestOfferState);
   const offerCount = useRecoilValue(offerCountState);
   const setOfferCount = useSetRecoilState(offerCountState);
+  const account = useRecoilValue(accountState);
+  const setAcceptedTradeInfo = useSetRecoilState(acceptedTradeInfoState);
+  const router = useRouter();
+
   const [processedOfferCount, setProcessedOfferCount] = useRecoilState(
     processedOfferCountState,
   );
@@ -41,6 +48,12 @@ const OfferModal: React.FC = () => {
   const handleAccept = useCallback(() => {
     if (!latestOffer) return;
     acceptOffer(latestOffer.tradeId);
+    const tradeInfo = {
+      tradeId: latestOffer.tradeId,
+      buyer: latestOffer.buyer,
+      seller: account, // Assuming 'account' is the current user's address
+    };
+    setAcceptedTradeInfo(tradeInfo);
     setShowModal(false);
     setProcessedOfferCount(offerCount);
     console.log(
@@ -49,17 +62,25 @@ const OfferModal: React.FC = () => {
       'offerCount',
       offerCount,
     );
+
     console.log('Accepting offer, closing modal');
+    router.push(`/game`);
   }, [latestOffer, setShowModal, offerCount, setProcessedOfferCount]);
 
   useEffect(() => {
-    if (offerCount > processedOfferCount && latestOffer && !showModal) {
+    if (
+      offerCount > processedOfferCount &&
+      latestOffer &&
+      !showModal &&
+      account !== latestOffer.buyer
+    ) {
+      console.log('account', account, 'latestOffer.buyer', latestOffer.buyer);
       setShowModal(true);
       console.log('New offer received, opening modal');
     }
   }, [offerCount, processedOfferCount, latestOffer, showModal, setShowModal]);
 
-  if (!showModal || !latestOffer) {
+  if (!showModal || !latestOffer || account === latestOffer.buyer) {
     console.log('Modal not showing', { showModal, latestOffer });
     return null;
   }
