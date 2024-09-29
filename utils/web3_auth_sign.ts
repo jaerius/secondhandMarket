@@ -6,6 +6,7 @@ import { BrowserProvider } from 'ethers';
 
 // Web3Auth 인스턴스
 web3auth.initModal();
+console.log('Web3Auth initialized:', web3auth);
 
 // Web3Auth provider를 ethers BrowserProvider로 변환하는 함수
 function getEthersProvider(web3authProvider: IProvider): BrowserProvider {
@@ -19,5 +20,7 @@ export async function getWeb3AuthSigner() {
   }
 
   const ethersProvider = getEthersProvider(web3auth.provider);
+  console.log('Signer address:', await ethersProvider.getSigner());
+
   return ethersProvider.getSigner();
 }

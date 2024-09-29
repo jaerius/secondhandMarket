@@ -1,26 +1,38 @@
-const hre = require('hardhat');
+import { ethers } from 'hardhat';
 
 async function main() {
-  // 먼저 Verifier 컨트랙트를 배포
-  const Verifier = await hre.ethers.getContractFactory('Groth16Verifier');
-  const verifier = await Verifier.deploy();
-  await verifier.waitForDeployment();
-  const verifierAddress = await verifier.getAddress();
-  console.log('Verifier deployed to:', verifierAddress);
+  const signers = await ethers.getSigners();
 
-  // ZKGameTradingContract를 배포
-  const ZKGameTradingContract = await hre.ethers.getContractFactory(
+  if (signers.length === 0) {
+    throw new Error('No signers available');
+  }
+
+  const deployer = signers[0]; // 첫 번째 계정을 deployer로 설정
+
+  console.log('Deploying contracts with the account:', deployer.address);
+
+  console.log('Deploying contracts with the account:', deployer.address);
+
+  // Deploy mock verifier
+  const MockGroth16VerifierFactory = await ethers.getContractFactory(
+    'MockGroth16Verifier',
+  );
+  const mockVerifier = await MockGroth16VerifierFactory.deploy();
+  await mockVerifier.waitForDeployment();
+  const verifierAddress = await mockVerifier.getAddress();
+  console.log('Mock verifier deployed to:', verifierAddress);
+
+  // Deploy ZKGameTradingContract
+  const ZKGameTradingContractFactory = await ethers.getContractFactory(
     'ZKGameTradingContract',
   );
-  const zkGameTradingContract = await ZKGameTradingContract.deploy(
+  const zkGameTradingContract = await ZKGameTradingContractFactory.deploy(
     verifierAddress,
   );
   await zkGameTradingContract.waitForDeployment();
-  const zkGameTradingContractAddress = await zkGameTradingContract.getAddress(); // 변경된 부분
-
   console.log(
     'ZKGameTradingContract deployed to:',
-    zkGameTradingContractAddress,
+    await zkGameTradingContract.getAddress(),
   );
 }
 
