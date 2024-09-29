@@ -1,7 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import useSocket from '../../hooks/useSocket';
+import { useRecoilValue } from 'recoil';
 import { ChartConfig } from '@/components/ui/chart';
+import { acceptedTradeInfoState } from '../../atom/trade';
+import { accountState } from '@/atom/account';
+
 import {
   BarChart,
   Bar,
@@ -11,12 +16,42 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+interface TradeInfo {
+  tradeId: string;
+  buyer: string;
+  seller: string;
+  offerPrice: string;
+  sellerPrice: string;
+}
+
 const GamePage = () => {
   const socket = useSocket();
   const [tapCount, setTapCount] = useState(0);
   const [opponentTapCount, setOpponentTapCount] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameStartedYet, setGameStartedYet] = useState(true);
+  const [tradeInfo, setTradeInfo] = useState<TradeInfo | null>(null);
+  const account = useRecoilValue(accountState);
+
+  const searchParams = useSearchParams();
+  const tradeId = searchParams.get('tradeId');
+
+  const acceptedTradeInfo = useRecoilValue(acceptedTradeInfoState);
+
+  useEffect(() => {
+    if (tradeId) {
+      const storedTradeInfo = localStorage.getItem('acceptedTradeInfo');
+      if (storedTradeInfo) {
+        const parsedTradeInfo: TradeInfo[] = JSON.parse(storedTradeInfo);
+        const currentTradeInfo = parsedTradeInfo.find(
+          (trade) => trade.tradeId === tradeId,
+        );
+        if (currentTradeInfo) {
+          setTradeInfo(currentTradeInfo);
+        }
+      }
+    }
+  }, [tradeId]);
 
   const chartConfig: ChartConfig = {
     up: {

@@ -53,6 +53,7 @@ const OfferModal: React.FC = () => {
       buyer: latestOffer.buyer,
       seller: account, // Assuming 'account' is the current user's address
       offerPrice: latestOffer.buyerOffer,
+      sellerPrice: latestOffer.sellerPrice,
     };
     setAcceptedTradeInfo(tradeInfo);
     setShowModal(false);
@@ -65,7 +66,7 @@ const OfferModal: React.FC = () => {
     );
 
     console.log('Accepting offer, closing modal');
-    const url = `/game?tradeId=${tradeInfo.tradeId}&role=seller&price=${latestOffer.sellerPrice}`;
+    const url = `/game?tradeId=${tradeInfo.tradeId}`;
 
     router.push(url);
   }, [latestOffer, setShowModal, offerCount, setProcessedOfferCount]);

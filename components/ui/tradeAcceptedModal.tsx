@@ -28,7 +28,7 @@ const TradeAcceptedModal: React.FC = () => {
       `Navigating to room for trade ID: ${acceptedTradeInfo.tradeId}`,
     );
     setShowModal(false);
-    const url = `/game?tradeId=${acceptedTradeInfo.tradeId}&role=buyer&price=${acceptedTradeInfo.offerPrice}`;
+    const url = `/game?tradeId=${acceptedTradeInfo.tradeId}`;
 
     router.push(url);
   };

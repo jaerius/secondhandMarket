@@ -22,6 +22,7 @@ interface AcceptedTradeInfo {
   buyer: string;
   seller: string;
   offerPrice: string;
+  sellerPrice: string;
 }
 
 export const showTradeAcceptedModalState = atom<boolean>({
