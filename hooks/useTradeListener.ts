@@ -26,9 +26,7 @@ const useTradeAcceptedListener = (
     //if (!account) return;
 
     console.log('Querying past TradeAccepted events');
-    const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL,
-    );
+    const provider = new ethers.JsonRpcProvider(process.env.SCROLL_TESTNET_URL);
     const contract = new ethers.Contract(contractAddress, abi, provider);
 
     try {

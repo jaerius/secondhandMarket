@@ -43,8 +43,8 @@ export default function RootLayout({
           <OfferListenerWrapper />
           <OfferModal />
           <TradeAcceptedModal />
-          <WagmiStateManager />
           <Web3ModalProvider initialState={initialState}>
+            <WagmiStateManager />
             {children}
           </Web3ModalProvider>
         </Provider>
