@@ -72,9 +72,10 @@ export default config;
 ```
 
 # 🔑 SmartContracts
-`contracts/MockGroth16Verifier.sol`
-`contracts/Verifier/sol`
-`contracts/ZKGameTradingContract.sol`
+[MockGroth16Verifier](contracts/MockGroth16Verifier.sol)  
+[Verifier](contracts/Verifier/sol)  
+[ZKGameTradingContract](contracts/ZKGameTradingContract.sol)
+
 
 
 <summary>
