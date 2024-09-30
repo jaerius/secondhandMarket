@@ -14,6 +14,11 @@ Once the game ends, the **purchase is automatically completed at the final price
 
 **In conclusion,** Scrollipop offers a playful way to ease the stress of negotiating in second-hand transactions, providing a more decentralized method of trading.
 
+# Key Feature
+1. Safely prove assets using Zero-Knowledge Proofs (ZKP).
+2. Compete with traders in price games!
+3. Buy and sell second-hand items with just one touch.
+
 # ✨ Alchemy use note
 `hardhat.config.ts`
 
