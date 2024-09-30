@@ -22,7 +22,8 @@ import { getContract } from '@/lib/ethereum';
 import ProofSlider from '@/components/ui/proofSlider';
 import zkContract from '../../../artifacts/contracts/ZKGameTradingContract.sol/ZKGameTradingContract.json';
 import { getWeb3AuthSigner } from '@/utils/web3_auth_sign';
-import { get } from 'http';
+import { useWriteContract } from 'wagmi';
+import { State, WagmiProvider } from 'wagmi';
 
 export default function Home() {
   const params = useParams();
@@ -38,12 +39,13 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const abi = zkContract.abi;
   const contractAddress = '0x33d371747C6f5509467803a9fC41f209b80510b8';
+  const { writeContract } = useWriteContract();
 
   useEffect(() => {
     const init = async () => {
       try {
         await web3auth.initModal();
-        setProvider(web3auth.provider);
+
         console.log('provider', provider);
         console.log('getWeb3AuthSigner', getWeb3AuthSigner());
       } catch (error) {
@@ -53,6 +55,8 @@ export default function Home() {
 
     init();
   }, [product]);
+
+  // const writeContract = useWriteContract();
 
   const onSendTransaction = useCallback(async () => {
     if (!product) {
@@ -247,12 +251,10 @@ export default function Home() {
       }
       // 스마트 컨트랙트 인스턴스를 가져오는 함수 (미리 정의되었다고 가정)
       //const contract: Contract = await getContract();
-      if (!provider) {
-        console.error('Provider not found');
-        return;
-      }
-      const signer = await getWeb3AuthSigner(); // Await the promise to get the signer object
-      const contract = new ethers.Contract(contractAddress, abi, signer);
+      // if (!provider) {
+      //   console.error('Provider not found');
+      //   return;
+      // }
 
       // Convert string values to wei
       const offerAmountWei = ethers.parseEther(inputValue);
@@ -268,17 +270,23 @@ export default function Home() {
       convertedProof[3][1] = offerAmountWei.toString();
       convertedProof[3][2] = sellerPriceWei.toString();
       console.log('right before makeOffer');
-      const tx = await contract.makeOffer(
-        product.owner,
-        sellerPriceWei, // sellerPrice
-        offerAmountWei, // buyerOffer
-        ...convertedProof, // zkProof
-        { value: sellerPriceWei }, // Send ETH with the transaction
-      );
 
-      console.log('Transaction sent:', tx.hash);
-      await tx.wait(); // 트랜잭션 완료 대기
-      alert('Offer submitted successfully!');
+      if (writeContract) {
+        await writeContract({
+          abi,
+          address: '0x33d371747C6f5509467803a9fC41f209b80510b8',
+          functionName: 'makeOffer',
+          args: [
+            product.owner,
+            sellerPriceWei, // sellerPrice
+            offerAmountWei, // buyerOffer
+            ...convertedProof, // zkProof
+          ],
+          value: sellerPriceWei, // Send ETH with the transaction
+        });
+
+        alert('Offer submitted successfully!');
+      }
     } catch (error) {
       console.error('Error submitting offer:', error);
       alert('Failed to submit offer.');
